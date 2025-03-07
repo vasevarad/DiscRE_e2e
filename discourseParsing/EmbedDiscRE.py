@@ -117,10 +117,10 @@ def embed_discre(message_ids, test_file):
                 msgAVGDump[id]=np.mean(list(relDump[id].values()),axis=0)
         end_time = timeSince(start)
         print("Done.")
-        if opt.split_one_arg:
-            print("Saved at: %s" % ('relDump_SOA_'+opt.model.split('/')[-1]+opt.test_file.split('/')[-1]+'.dict'))
-        else:
-            print("Saved at: %s" % ('relDump_'+opt.model.split('/')[-1]+opt.test_file.split('/')[-1]+'.dict'))
+        #if opt.split_one_arg:
+        #    print("Saved at: %s" % ('relDump_SOA_'+opt.model.split('/')[-1]+opt.test_file.split('/')[-1]+'.dict'))
+        #else:
+        #    print("Saved at: %s" % ('relDump_'+opt.model.split('/')[-1]+opt.test_file.split('/')[-1]+'.dict'))
 
         print("Prediction Time: %s" % (end_time))
         if len(skips) > 0:
