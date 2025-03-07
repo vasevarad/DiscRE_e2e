@@ -20,7 +20,7 @@ def get_discre_embedding(csv_file):
 
 
 if __name__ == '__main__':
-    relation_embeddings, average_embeddings = get_discre_embedding('/data/vvaradarajan/discre_integrated/dummy_texts.csv')
+    relation_embeddings, average_embeddings = get_discre_embedding('./dummy_texts.csv')
     #save the average embeddings  
     with open('average_embeddings.pkl', 'wb') as f:
         pickle.dump(average_embeddings, f)
