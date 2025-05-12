@@ -102,19 +102,32 @@ def embed_discre(message_ids, test_file):
                 else:
                     skips.append(i)
                     continue
-            for j in range(len(test_word_seqs[i])-1):
-                results = model(('Eval', 'N/A', j, j+1), test_word_seqs[i])
+            
+            batch_inputs = []
+            batch_indices = []
+            for j in range(len(test_word_seqs[i]) - 1):
+                batch_inputs.append(('Eval', 'N/A', j, j + 1))
+                batch_indices.append(j)
+
+            if batch_inputs:
+                results = model(batch_inputs, test_word_seqs[i])
                 if results is None:
-                    print("The message at '%d' doesn't have any word in the given embedding dict. Skipping this message"%(i))
+                    print("The message at '%d' doesn't have any word in the given embedding dict. Skipping this message" % (i))
                     continue
                 else:
-                    class_vec, type_vec, subtype_vec, relation_vec=results
-                try:
-                    relDump[id][j]=torch.cat([class_vec, type_vec, subtype_vec, relation_vec.view(opt.hidden_dim*opt.num_direction*2)]).view(1,-1).cpu().numpy()
-                except KeyError:
-                    relDump[id]={j:torch.cat([class_vec, type_vec, subtype_vec, relation_vec.view(opt.hidden_dim*opt.num_direction*2)]).view(1, -1).cpu().numpy()}
-            if results is not None:
-                msgAVGDump[id]=np.mean(list(relDump[id].values()),axis=0)
+                    class_vecs, type_vecs, subtype_vecs, relation_vecs = results
+                    for idx, j in enumerate(batch_indices):
+                        try:
+                            relDump[id][j] = torch.cat(
+                                [class_vecs[idx], type_vecs[idx], subtype_vecs[idx], relation_vecs[idx].view(opt.hidden_dim * opt.num_direction * 2)]
+                            ).view(1, -1).cpu().numpy()
+                        except KeyError:
+                            relDump[id] = {
+                                j: torch.cat(
+                                    [class_vecs[idx], type_vecs[idx], subtype_vecs[idx], relation_vecs[idx].view(opt.hidden_dim * opt.num_direction * 2)]
+                                ).view(1, -1).cpu().numpy()
+                            }
+                msgAVGDump[id] = np.mean(list(relDump[id].values()), axis=0)
         end_time = timeSince(start)
         print("Done.")
         #if opt.split_one_arg:

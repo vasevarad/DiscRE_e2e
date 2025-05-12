@@ -3,6 +3,7 @@ from utils.InputMaker import make_discre_input
 from utils.TweeboParseUtils import prepare_input_file, tweebo_parse_file
 from discourseParsing.EmbedDiscRE import embed_discre
 import pickle
+import sys
 
 def get_discre_embedding(csv_file):
     

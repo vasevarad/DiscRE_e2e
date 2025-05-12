@@ -109,7 +109,7 @@ class DiscourseParser(nn.Module):
     def forward(self, tr_meta, da_embedding_seq):
         """Defines the forward pass through the full deep learning model"""
 
-        case, disCon, arg1Idx, arg2Idx = tr_meta
+        cases, disCons, arg1Idxs, arg2Idxs = zip(*tr_meta)
         # use batch input and get all the hidden vectors and concatenate them
 
         da_input = []
@@ -149,6 +149,8 @@ class DiscourseParser(nn.Module):
             word_attn_vec = self.attn_mul(word_output,word_attn) 
 
             da_input.append(word_attn_vec.view(self.hidden_dim*2, 1, -1))
+
+            
         if len(da_input)==0:
             print("None of the words in this message do not exist in the given word embedding dict")
             return None
@@ -161,13 +163,16 @@ class DiscourseParser(nn.Module):
         da_input = F.dropout(da_input, p=self.dropout_rate, training=self.training)
         
         da_output, (da_hidden, da_cell_state) = self.da_RNN(da_input, self.init_da_hidden())
-        relation_vec=torch.cat([da_output[arg1Idx],da_output[arg2Idx]]).view(1,-1)
+        da_output = da_output.view(da_output.size(0), -1)
+        arg1_tensors = torch.stack([da_output[arg1Idx] for arg1Idx in arg1Idxs])
+        arg2_tensors = torch.stack([da_output[arg2Idx] for arg2Idx in arg2Idxs])
+        relation_vec = torch.cat([arg1_tensors, arg2_tensors], dim=1)
         class_vec = self.das_to_class(relation_vec)
         type_vec = self.das_to_type(relation_vec)
-        subtype_vec = self.da_to_subtype(da_output[arg2Idx])
+        subtype_vec = self.da_to_subtype(arg2_tensors)
         
 
-        return class_vec.view(4),type_vec.view(16),subtype_vec.view(25),relation_vec
+        return class_vec.view(len(tr_meta), 4), type_vec.view(len(tr_meta), 16), subtype_vec.view(len(tr_meta), 25), relation_vec
 
     
     ## Remove history of the hidden vector from the last instance

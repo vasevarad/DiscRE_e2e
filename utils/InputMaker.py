@@ -80,8 +80,6 @@ def make_discre_input(args_file, args_meta_file):
         if row['Discourse_Connective'] in explicitDict or row['Discourse_Connective'] in implicitDict:
             arg1Idx=int(str(row['Arg1_id']).split('-')[1])
             arg2Idx=int(str(row['Arg2_id']).split('-')[1])
-
-
             try:
                 argMetaDict[row['tweet_id']].append((row['trainer_id'],row['Case_Type'],row['Discourse_Connective'],arg1Idx,arg2Idx))
             except KeyError:
@@ -91,7 +89,6 @@ def make_discre_input(args_file, args_meta_file):
             wordSeq=deepcopy(argDict[row['tweet_id']])
             wordSeq[arg2Idx]=wordSeq[arg2Idx][len(str(row['Discourse_Connective']).split()):]
             impTrDict[row['trainer_id']]=wordSeq
-        
     pickle.dump(argDict,open(args_file[:-4]+'.dict','wb'))
     pickle.dump(argMetaDict,open(args_meta_file[:-4]+'.odict','wb'))
     pickle.dump(labelDict,open(args_meta_file[:-4]+'_labels.dict','wb'))
